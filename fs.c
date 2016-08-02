@@ -71,7 +71,8 @@ unsigned int init_data_block(void )
 	unsigned int bit_pos = 0;
 	int i;
 
-	for (i=0; i < (first_data_block / WORD_SIZE); i++, bit_map += 1)
+//	for (i=0; i < ((int*)first_data_block / WORD_SIZE); i++, bit_map += 1)
+	for (i=0; i < (* (int *)first_data_block / WORD_SIZE); i++, bit_map += 1)
 	{
 		for (bit_pos = 0, bmap = bit_map; bit_pos < 32; bit_pos++, *bmap >>= 1)
 		{
