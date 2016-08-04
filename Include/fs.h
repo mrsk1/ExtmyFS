@@ -2,6 +2,8 @@
 #ifndef _FS_H_
 #define _FS_H_
 
+#include<stdlib.h>
+
 #define EXT2_N_BLOCKS	1
 #define BLOCK_SIZE    1024
 #define INODE_SIZE  64
