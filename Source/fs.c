@@ -203,20 +203,19 @@ void fs_init(void)
 
 void get_root_inode_info(struct inode *in)
 {
-	struct ext2_disk_inode *inode = (struct ext2_disk_inode *) ext2_inode;
+//	struct ext2_disk_inode *inode = (struct ext2_disk_inode *) ext2_inode;
 
 	in->i_no = 1;
 	in->blocks = 1;
 
 	return;
 }
-
 static unsigned int get_next_dentry_offset(unsigned int in)
 {
 	struct ext2_disk_inode *inode = (struct ext2_disk_inode *) ext2_inode;
 	unsigned int blk_no;
 	unsigned char *rec;
-	
+  
 	blk_no = inode[in].i_block[0];
 	rec = dev_mem + (BLOCK_SIZE * blk_no);
 #if 0
@@ -224,6 +223,7 @@ static unsigned int get_next_dentry_offset(unsigned int in)
 
 	} while (ino);
 #endif
+	return 1;
 
 }
 static unsigned int create_d_entry (char *name, unsigned int p_inode, int type)
@@ -233,6 +233,7 @@ static unsigned int create_d_entry (char *name, unsigned int p_inode, int type)
 
 	offset = get_next_dentry_offset(p_inode);
 	inode = get_free_inode();	
+	return 1;
 }
 unsigned int create_file(char *name, unsigned int p_inode)
 {

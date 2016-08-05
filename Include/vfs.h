@@ -39,6 +39,7 @@ struct dentry {
 };
 
 char *get_pwd_name(void) ;
+void vfs_init(void);
 
 #endif
 

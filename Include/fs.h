@@ -67,6 +67,7 @@ struct ext2_disk_inode
 	
 }__attribute__((aligned(INODE_SIZE)));
 
+unsigned int create_file(char *name, unsigned int p_inode);
 
 #endif
 

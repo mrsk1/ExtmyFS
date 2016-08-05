@@ -84,7 +84,10 @@ int main()
 	while (1)
 	{
 		printf ("[GES %s]$ ", get_pwd_name());
-		if (fgets (line, sizeof (line), stdin) == NULL) exit (0);
+		if (fgets (line, sizeof (line), stdin) == NULL){
+		putchar('\n');
+		exit (0);
+		}
 
 		if ( strlen (line) <= 1) continue;
 

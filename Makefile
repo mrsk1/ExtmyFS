@@ -52,8 +52,7 @@ ${OBJDIR}%.o:%.c
 TAGS:
 	find . -iname '*.c' -o -iname '*.cpp' -o -iname '*.h' -o -iname '*.hpp' > cscope.files
 	cscope -b -i cscope.files -f cscope.out
-
-#	ctags -R
+	ctags -R
 
 
 clean:
