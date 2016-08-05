@@ -1,3 +1,5 @@
+#if 0
+#endif
 #include <stdio.h>
 
 #if 0
