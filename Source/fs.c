@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "fs.h"
 #include "vfs.h"
 
@@ -114,6 +115,8 @@ static void init_ext2(void)
 	ext2_inode_bit_map = ext2_bgd + 1;
 	bmap = ext2_inode_bit_map;
 	*bmap |= 0x1; // Reserving the first bit of inode bit map
+	DB_PRINT("address of  inode bit_map = 0x%08x \n",ext2_inode_bit_map);
+	DB_PRINT(" *bmap value = %d \n",*bmap);	
 
 	ext2_data_block_bit_map = ext2_inode_bit_map + BLOCK_SIZE;
 	bmap = ext2_data_block_bit_map;
@@ -137,12 +140,12 @@ unsigned int get_free_bit(void *block_addr)
 	unsigned int bit_pos = 0;
 	int i;
 
-	printf ("block_addr = %08x \n", (unsigned int)block_addr);
+	printf ("block_addr = 0x%08x \n", (unsigned int)(uintptr_t)block_addr);
 	for (i=0; i < WORDS_PER_BLOCK; i++, bit_map += 1)
 	{
-		for (bit_pos = 0, bmap = bit_map; bit_pos < 32; bit_pos++, *bmap >>= 1)
+		for (bit_pos = 0, bmap = bit_map; bit_pos < 32; bit_pos++ /*, *bmap >>= 1*/)
 		{
-			if (!(*bmap & 0x1))
+			if (!(*bmap & (0x1<<bit_pos)))
 			{
 				*bit_map |= (1 << bit_pos);
 				return (bit_position + bit_pos);
@@ -218,11 +221,17 @@ static unsigned int get_next_dentry_offset(unsigned int in)
   
 	blk_no = inode[in].i_block[0];
 	rec = dev_mem + (BLOCK_SIZE * blk_no);
-#if 0
+//#if 0
+	struct ext2_dir_entry_2 *pd_entry;
+	unsigned int ino;
+	pd_entry = (struct ext2_dir_entry_2 *)rec ;
 	do {
-
+		ino = pd_entry->rec_len;
+		pd_entry = pd_entry + ino;
 	} while (ino);
-#endif
+	printf("sending offset = 0x%08x \n",pd_entry);
+	return pd_entry;
+//#endif
 	return 1;
 
 }
@@ -232,11 +241,17 @@ static unsigned int create_d_entry (char *name, unsigned int p_inode, int type)
 	unsigned int inode;
 
 	offset = get_next_dentry_offset(p_inode);
+	DB_PRINT("##########################\n");
+	DB_PRINT("offset = 0x%08x \n",offset);
 	inode = get_free_inode();	
+	DB_PRINT("free inode num  = %d \n",inode);
+	DB_PRINT("##########################\n");
+	/**karthik Edited this code */
+
 	return 1;
 }
 unsigned int create_file(char *name, unsigned int p_inode)
 {
-
+	DB_PRINT("inside Create File \n");
 	return create_d_entry(name, p_inode, EXT2_FT_REG_FILE);
 }

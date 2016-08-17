@@ -12,6 +12,8 @@
 #define WORDS_PER_BLOCK (BLOCK_SIZE / 4)
 #define WORD_SIZE 4
 
+#define DB_PRINT printf
+#define NOPRINT(...) 
 /* EXT2 file types */
 enum { 
 	EXT2_FT_UNKNOWN = 0,
