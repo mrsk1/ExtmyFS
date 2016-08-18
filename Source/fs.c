@@ -30,14 +30,14 @@ void print_sizes ()
 
 void print_addresses(void)
 {
-	printf ("Address of dev_mem = 0x%08x \n", (unsigned int)((int *)dev_mem));
-	printf ("Address of ext2_sb = 0x%08x \n", (unsigned int)ext2_sb);
-	printf ("Address of ext2_bgd = 0x%08x \n",(unsigned int)ext2_bgd);
-	printf ("Address of ext2_inode_bit_map = 0x%08x \n", (unsigned int)ext2_inode_bit_map);
-	printf ("Address of ext2_data_block_bit_map = 0x%08x \n", (unsigned int)ext2_data_block_bit_map);
-	printf ("Address of ext2_inode = 0x%08x \n", (unsigned int)ext2_inode);
-	printf ("Start of data blocks =  0x%08x \n", (unsigned int)first_data_block);
-	printf ("Last data block = 0x%08x \n", (unsigned int)last_data_block);
+	printf ("Address of dev_mem			= 0x%08x \n", (unsigned int)((int *)dev_mem));
+	printf ("Address of ext2_sb			= 0x%08x \n", (unsigned int)ext2_sb);
+	printf ("Address of ext2_bgd 			= 0x%08x \n",(unsigned int)ext2_bgd);
+	printf ("Address of ext2_data_block_bit_map	= 0x%08x \n", (unsigned int)ext2_data_block_bit_map);
+	printf ("Address of ext2_inode_bit_map		= 0x%08x \n", (unsigned int)ext2_inode_bit_map);
+	printf ("Address of ext2_inode			= 0x%08x \n", (unsigned int)ext2_inode);
+	printf ("Start of data blocks			= 0x%08x \n", (unsigned int)first_data_block);
+	printf ("Last data block 			= 0x%08x \n", (unsigned int)last_data_block);
 
 	return;
 }
@@ -79,7 +79,7 @@ static init_data_block(void)
 }
 
 #endif
-
+#ifdef WRONGLOGIC
 unsigned int init_data_block(void )
 {
 	unsigned int *bit_map = first_data_block;
@@ -104,6 +104,14 @@ unsigned int init_data_block(void )
 	
 	return 0;	
 }
+#endif
+static init_data_block(void)
+{
+	unsigned int *bmap = first_data_block;
+	memset(first_data_block,'\0',BLOCK_SIZE);
+	return 0;
+}
+
 
 static void init_ext2(void)
 {
@@ -112,6 +120,16 @@ static void init_ext2(void)
 	ext2_sb = (struct ext2_super_block *) dev_mem;
 	ext2_bgd = (struct ext2_blk_grp_des *) (ext2_sb + 1);
 
+	ext2_data_block_bit_map = ext2_bgd +1;
+	bmap = ext2_data_block_bit_map;
+	*bmap |= 0x1; // Reserving the first bit of data blk bit map
+	
+	ext2_inode_bit_map = ext2_data_block_bit_map + BLOCK_SIZE;
+	bmap = ext2_inode_bit_map;
+	*bmap |= 0x1; // Reserving the first bit of inode bit map
+	NOPRINT("address of  inode bit_map = 0x%08x \n",ext2_inode_bit_map);
+	NOPRINT(" *bmap value = %d \n",*bmap);	
+#if 0
 	ext2_inode_bit_map = ext2_bgd + 1;
 	bmap = ext2_inode_bit_map;
 	*bmap |= 0x1; // Reserving the first bit of inode bit map
@@ -122,10 +140,11 @@ static void init_ext2(void)
 	bmap = ext2_data_block_bit_map;
 	*bmap |= 0x1; // Reserving the first bit of data blk bit map
 
-	ext2_inode = (struct ext2_disk_inode (*)[])(ext2_data_block_bit_map + BLOCK_SIZE);
+#endif
+	ext2_inode = (struct ext2_disk_inode (*)[])(ext2_inode_bit_map + BLOCK_SIZE);
 
 	first_data_block = ext2_inode + 1;
-	printf ("first data block = %08x \n", (unsigned int )first_data_block);
+	printf ("first data block = 0x%08x \n", (unsigned int )first_data_block);
 	init_data_block();
 	last_data_block = dev_mem + DEV_SIZE;
 
@@ -220,13 +239,16 @@ static unsigned int get_next_dentry_offset(unsigned int in)
 	unsigned char *rec;
   
 	blk_no = inode[in].i_block[0];
-	rec = dev_mem + (BLOCK_SIZE * blk_no);
+	DB_PRINT("in =%d blk no = %d \n ",in, blk_no);
+//	rec = dev_mem + (BLOCK_SIZE * blk_no);
+	rec = first_data_block + (BLOCK_SIZE * blk_no);
 //#if 0
 	struct ext2_dir_entry_2 *pd_entry;
 	unsigned int ino;
 	pd_entry = (struct ext2_dir_entry_2 *)rec ;
 	do {
 		ino = pd_entry->rec_len;
+		printf(" ino = %d \n",ino);
 		pd_entry = pd_entry + ino;
 	} while (ino);
 	printf("sending offset = 0x%08x \n",pd_entry);
@@ -239,11 +261,22 @@ static unsigned int create_d_entry (char *name, unsigned int p_inode, int type)
 {
 	unsigned int offset;
 	unsigned int inode;
-
+	unsigned short flength;
+	struct ext2_dir_entry_2  *d_entry;
 	offset = get_next_dentry_offset(p_inode);
 	DB_PRINT("##########################\n");
 	DB_PRINT("offset = 0x%08x \n",offset);
+	/**  go to the d_entry and fill the filename and record length */
+	d_entry = (struct ext2_dir_entry_2 *) offset;
+	flength = strlen(name);
+	d_entry->name_len = flength;
+	d_entry->rec_len = sizeof(* d_entry) + flength;
+	DB_PRINT("free inode num  = %d \n",inode);
+	d_entry->file_type = type;
+	
 	inode = get_free_inode();	
+	d_entry->inode = inode;
+	/** get inode num then fill the file details */
 	DB_PRINT("free inode num  = %d \n",inode);
 	DB_PRINT("##########################\n");
 	/**karthik Edited this code */
