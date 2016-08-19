@@ -232,7 +232,8 @@ void get_root_inode_info(struct inode *in)
 
 	return;
 }
-static unsigned int get_next_dentry_offset(unsigned int in)
+//static unsigned int  get_next_dentry_offset(unsigned int in)
+static unsigned int * get_next_dentry_offset(unsigned int in)
 {
 	struct ext2_disk_inode *inode = (struct ext2_disk_inode *) ext2_inode;
 	unsigned int blk_no;
@@ -257,29 +258,41 @@ static unsigned int get_next_dentry_offset(unsigned int in)
 	return 1;
 
 }
+static void fill_inode_details (unsigned int pos, int type)
+{
+	struct ext2_disk_inode *inode = (struct ext2_disk_inode *) ext2_inode;
+
+	inode[pos].i_atime = inode[pos].i_ctime = inode[pos].i_mtime = time(NULL);
+	inode[pos].i_size = BLOCK_SIZE;
+	inode[pos].i_blocks = 1;
+	inode[pos].i_block[0] = get_free_data_block();
+   inode[pos].i_mode = type ;
+   inode[pos].i_flags = type  ;
+	/** TODO: i_flags need to check how to update */
+	printf ("Free data block = %u \n", inode[pos].i_block[0]);
+
+	return;
+}
 static unsigned int create_d_entry (char *name, unsigned int p_inode, int type)
 {
-	unsigned int offset;
-	unsigned int inode;
-	unsigned short flength;
+	unsigned int *offset;
+	unsigned int inode = 0;
+	unsigned short flength = 0;
 	struct ext2_dir_entry_2  *d_entry;
 	offset = get_next_dentry_offset(p_inode);
-	DB_PRINT("##########################\n");
-	DB_PRINT("offset = 0x%08x \n",offset);
+	NOPRINT("offset = 0x%08x \n",offset);
 	/**  go to the d_entry and fill the filename and record length */
 	d_entry = (struct ext2_dir_entry_2 *) offset;
 	flength = strlen(name);
 	d_entry->name_len = flength;
 	d_entry->rec_len = sizeof(* d_entry) + flength;
-	DB_PRINT("free inode num  = %d \n",inode);
 	d_entry->file_type = type;
-	
 	inode = get_free_inode();	
-	d_entry->inode = inode;
-	/** get inode num then fill the file details */
 	DB_PRINT("free inode num  = %d \n",inode);
-	DB_PRINT("##########################\n");
-	/**karthik Edited this code */
+	d_entry->inode = inode;
+	memcpy(d_entry->name,name,flength);
+	/** get inode num then fill the file details */
+	fill_inode_details(inode, type);	
 
 	return 1;
 }

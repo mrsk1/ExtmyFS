@@ -14,12 +14,20 @@
 
 #define DB_PRINT printf
 #define NOPRINT(...) 
-/* EXT2 file types */
+/** EXT2 file types */
 enum { 
 	EXT2_FT_UNKNOWN = 0,
 	EXT2_FT_REG_FILE = 1,
 	EXT2_FT_DIR = 2,
 	EXT2_FT_MAX
+};
+/** EXT2 flags for access data */
+enum { 
+   EXT2_FL_SECURE = 0,   /** secure deletion */
+   EXT2_FL_UNRM = 1,    /** record for undelete */
+   EXT2_FL_SYNC = 2,    /**   synchronous updates */
+   EXT2_FL_NOATIME = 3, /** do not update .i_atime */
+   EXT2_FL_DIRTY        /**   Dirty (modified) */
 };
 
 typedef unsigned int _u32;
