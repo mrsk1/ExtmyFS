@@ -40,6 +40,9 @@ struct dentry {
 
 char *get_pwd_name(void) ;
 void vfs_init(void);
+void get_root_inode_info(struct inode *in);
+unsigned int create_file(char *name, unsigned int p_inode);
+
 
 #endif
 

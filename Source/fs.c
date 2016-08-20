@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "fs.h"
 #include "vfs.h"
 
@@ -8,7 +9,7 @@
 
 static struct ext2_super_block *ext2_sb;
 static struct ext2_blk_grp_des *ext2_bgd;
-static struct ext2_dir_entry_2 *ext2_dentry;
+//static struct ext2_dir_entry_2 *ext2_dentry;
 static struct ext2_disk_inode (*ext2_inode)[BLOCK_SIZE * BITS_PER_BYTE];
 
 static void * ext2_inode_bit_map;
@@ -30,14 +31,14 @@ void print_sizes ()
 
 void print_addresses(void)
 {
-	printf ("Address of dev_mem			= 0x%08x \n", (unsigned int)((int *)dev_mem));
-	printf ("Address of ext2_sb			= 0x%08x \n", (unsigned int)ext2_sb);
-	printf ("Address of ext2_bgd 			= 0x%08x \n",(unsigned int)ext2_bgd);
-	printf ("Address of ext2_data_block_bit_map	= 0x%08x \n", (unsigned int)ext2_data_block_bit_map);
-	printf ("Address of ext2_inode_bit_map		= 0x%08x \n", (unsigned int)ext2_inode_bit_map);
-	printf ("Address of ext2_inode			= 0x%08x \n", (unsigned int)ext2_inode);
-	printf ("Start of data blocks			= 0x%08x \n", (unsigned int)first_data_block);
-	printf ("Last data block 			= 0x%08x \n", (unsigned int)last_data_block);
+	printf ("Address of dev_mem			= 0x%08x \n", (unsigned int)(uintptr_t)dev_mem);
+	printf ("Address of ext2_sb			= 0x%08x \n", (unsigned int)(uintptr_t)ext2_sb);
+	printf ("Address of ext2_bgd 			= 0x%08x \n",(unsigned int)(uintptr_t)ext2_bgd);
+	printf ("Address of ext2_data_block_bit_map	= 0x%08x \n", (unsigned int)(uintptr_t)ext2_data_block_bit_map);
+	printf ("Address of ext2_inode_bit_map		= 0x%08x \n", (unsigned int)(uintptr_t)ext2_inode_bit_map);
+	printf ("Address of ext2_inode			= 0x%08x \n", (unsigned int)(uintptr_t)ext2_inode);
+	printf ("Start of data blocks			= 0x%08x \n", (unsigned int)(uintptr_t)first_data_block);
+	printf ("Last data block 			= 0x%08x \n", (unsigned int)(uintptr_t)last_data_block);
 
 	return;
 }
@@ -105,9 +106,9 @@ unsigned int init_data_block(void )
 	return 0;	
 }
 #endif
-static init_data_block(void)
+static int init_data_block(void)
 {
-	unsigned int *bmap = first_data_block;
+	//unsigned int *bmap = first_data_block;
 	memset(first_data_block,'\0',BLOCK_SIZE);
 	return 0;
 }
@@ -144,7 +145,7 @@ static void init_ext2(void)
 	ext2_inode = (struct ext2_disk_inode (*)[])(ext2_inode_bit_map + BLOCK_SIZE);
 
 	first_data_block = ext2_inode + 1;
-	printf ("first data block = 0x%08x \n", (unsigned int )first_data_block);
+	printf ("first data block = 0x%08x \n", (unsigned int )(uintptr_t )first_data_block);
 	init_data_block();
 	last_data_block = dev_mem + DEV_SIZE;
 
@@ -252,10 +253,10 @@ static unsigned int * get_next_dentry_offset(unsigned int in)
 		printf(" ino = %d \n",ino);
 		pd_entry = pd_entry + ino;
 	} while (ino);
-	printf("sending offset = 0x%08x \n",pd_entry);
-	return pd_entry;
+	printf("sending offset = 0x%08x \n",(unsigned int )(uintptr_t)pd_entry);
+	return (unsigned int *)pd_entry;
 //#endif
-	return 1;
+//	return NULL;
 
 }
 static void fill_inode_details (unsigned int pos, int type)

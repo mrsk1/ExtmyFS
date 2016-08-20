@@ -30,7 +30,7 @@ VPATH=Source/  Objects/ Include/
 OBJECTS=$(addprefix $(OBJDIR),$(OBJ_NAMES))
 
 
-CFLAGS= -w #-Wall
+CFLAGS=-Wall # -w 
 INCLUDE = -I Include/
 
 
