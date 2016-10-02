@@ -10,6 +10,15 @@ char pwd_name[NAME_LEN];
 void ls (char param[])
 {
 	printf ("ls command \n");
+	list_files(1);
+	return ;
+}
+
+
+void echo (char param[])
+{
+	printf ("echo command \n");
+	printf ("parameters = %s \n", param);
 	return ;
 }
 
@@ -20,17 +29,11 @@ void cat (char param[])
 	return ;
 }
 
-void echo (char param[])
-{
-	printf ("echo command \n");
-	printf ("parameters = %s \n", param);
-	return ;
-}
-
 void rm (char param[])
 {
 	printf ("rm command \n");
 	printf ("parameters = %s \n", param);
+	remove_file(param, 1);
 	return ;
 }
 
@@ -46,7 +49,7 @@ void touch (char param[])
 {
 	printf ("touch command \n");
 	printf ("parameters = %s \n", param);
-	create_file("myfs", 1);
+	create_file(param, 1);
 	return ;
 }
 

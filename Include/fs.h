@@ -11,6 +11,7 @@
 #define BYTES_PER_BLOCK (BLOCK_SIZE / 1)
 #define WORDS_PER_BLOCK (BLOCK_SIZE / 4)
 #define WORD_SIZE 4
+#define EXT2_NAME_LEN 255
 
 #define DB_PRINT printf
 #define NOPRINT(...) 

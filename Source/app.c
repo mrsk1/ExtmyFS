@@ -66,11 +66,16 @@ void hexdump (char line[])
 void process_cmd(char cmd[], char param[])
 {
 	int i = 0;
+	int status = 0;
 	for (; i < TOTAL_CMDS; i++)
 	{
-		if (!(strcmp (cmds[i].cmd, cmd)))
+		if (!(strcmp (cmds[i].cmd, cmd))){
 			cmds[i].cmd_func(param);
+			status = 1;
+		}
 	}
+	if (!status)
+		printf("Command Not Found !!! \n");
 }
 int main()
 {
